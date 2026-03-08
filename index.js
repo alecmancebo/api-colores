@@ -34,7 +34,7 @@ function verificar (peticion,respuesta,siguiente){
 }
 
 
-servidor.post("/login", async (peticion,respuesta) => {  
+/*servidor.post("/login", async (peticion,respuesta) => {  
     const {password, nombre} = peticion.body;
 
     try{
@@ -53,6 +53,30 @@ servidor.post("/login", async (peticion,respuesta) => {
    catch{
     respuesta.status(500).json({ error: "Error en el servidor" });
    }
+});*/
+
+servidor.post("/login", async (peticion, respuesta) => {  
+    const { password, nombre } = peticion.body;
+
+    try {
+        // 1. Verificamos que el nombre coincida con el .env
+        if (nombre === process.env.NOMBRE) {
+            // 2. Comparamos el password escrito con el HASH del .env
+            const coincide = await bcrypt.compare(password, process.env.PASSWORD);
+
+            if (coincide) {
+                // 3. Si coincide, generamos el token
+                const token = jwt.sign({ usuario: nombre }, "ayuda");
+                return respuesta.json({ token });
+            }
+        }
+        
+        // Si el nombre no coincide O la contraseña no es correcta
+        return respuesta.status(401).json({ error: "Credenciales incorrectas" });
+
+    } catch (error) {
+        return respuesta.status(500).json({ error: "Error en el servidor" });
+    }
 });
 
 servidor.use(verificar); 
