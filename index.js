@@ -41,7 +41,7 @@ servidor.post("/login", async (peticion,respuesta) => {
         // Comparamos con los datos del .env
         if (nombre === process.env.NOMBRE) {
             // Comparamos lo que escribió el usuario con el HASH del .env
-            const coincide = await bcrypt.compare(password, process.env.HASH_PASSWORD);
+            const coincide = await bcrypt.compare(password, process.env.PASSWORD);
 
             if (coincide) {
                 const token = jwt.sign({ usuario: nombre }, "ayuda");
