@@ -8,35 +8,23 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 const saltRounds = 10;
 
-let nombre = NOMBRE;
-let password = PASSWORD;
+let nombre = process.env.NOMBRE;
+let password = process.env.PASSWORD;
 
-servidor.use(cors()); //convierte la API EN pública, cualquier persona podria hacer peticiones
+servidor.use(cors()); 
 
-servidor.use(express.json()); //En tu código: Solo tienes un GET que envía datos al cliente. No tienes endpoints que reciban datos JSON en el body. Por eso no es necesaria en este caso. Sí la necesitarías si tuvieras POST/PUT/DELETE que reciban datos JSON. Crea peticion.body.
-
-//servidor.use(express.static("./front")); //para servir archivos estaticos, como el index.html, que se encuentra en la carpeta pruebas.
-
-//creamos contraseña en bcrypt encriptada
-try{
-    let salt = await bcrypt.genSalt(10);
-    let hash = await bcrypt.hash(password,salt);
-    console.log("hash:", hash);
-
-    let resultado = await bcrypt.compare(password, hash);
-    /*console.log("Resultado comparación:", resultado);*/ // Debería ser true
-}catch(err){
-    console.log("Error:", err);
-}
-
-//funcion para verificar si tengo token o no
+servidor.use(express.json()); 
 function verificar (peticion,respuesta,siguiente){
-    const token = "";
+
+      let token = peticion.headers.authorization.split(" ")[1]; //aqui se recibe el token, que se manda en las cabeceras de la petición, y se puede verificar si es correcto o no, para dar acceso o no a la ruta cerrada
+
     if(token){
         try {
-            const infoUsuario = jwt.verify(token, process.env.INFO);
-            peticion.usuarioId = infoUsuario.id; // Guardamos el ID del usuario en la petición
-            siguiente();
+            jwt.verify(token, "ayuda", (err, usuario) => {
+                if (err) return respuesta.status(403).json({ error: "Token inválido" });
+                peticion.usuario = usuario;
+                siguiente();
+            });
         } catch (err) {
             respuesta.status(403).json({ error: "Token inválido o expirado." });
         }
@@ -46,40 +34,31 @@ function verificar (peticion,respuesta,siguiente){
 }
 
 
-
-
 servidor.post("/login", async (peticion,respuesta) => {  
     const {password, nombre} = peticion.body;
 
     try{
+        // Comparamos con los datos del .env
+        if (nombre === process.env.NOMBRE) {
+            // Comparamos lo que escribió el usuario con el HASH del .env
+            const coincide = await bcrypt.compare(password, process.env.HASH_PASSWORD);
 
-        const usuario = await buscarUsuarioPorNombre(nombre);
-
-        if(usuario && resultado){
-
-            const token = jwt.sign(usuario,password);
-            return ;
+            if (coincide) {
+                const token = jwt.sign({ usuario: nombre }, "ayuda");
+                return respuesta.json({ token });
+            }
         }else{
-            respuesta.status(401);
-            respuesta.json({ error: "Error en login" })
-        }
-
-    }catch{
-        respuesta.status(401);
-        respuesta.json({ error: "Error en login" })
+        respuesta.status(401).json({ error: "Credenciales incorrectas" });}
     }
-
+   catch{
+    respuesta.status(500).json({ error: "Error en el servidor" });
+   }
 });
 
-servidor.use(verificar); //todas las rutas que estén debajo de esta línea, van a pasar por verificar.
+servidor.use(verificar); 
 
-servidor.get("/colores", async (peticion, respuesta) => { //get mejor usar .get en vez de use
+servidor.get("/colores", async (peticion, respuesta) => { 
     try {
-        /*let conexion = await MongoClient.connect(urlmongo);
-        let coleccion = conexion.db("colores").collection("colores");
-        let colores = await coleccion.find().toArray(); //obtengo todos los colores almacenados en la coleccion en array
-
-        conexion.close();*/
 
         let colores =  await leerColores();
        
@@ -108,7 +87,7 @@ servidor.delete("/borrar/:id", async (peticion, respuesta, siguiente) => {
         if (cantidad) {
             return respuesta.sendStatus(204); //si se encuentra el color
         }
-        siguiente(); //si no se encuentra el color, se llama a siguiente para que se ejecute el middleware de manejo de rutas no encontradas (404)
+        siguiente(); 
 
     } catch (e) {
         respuesta.status(500);
@@ -129,15 +108,8 @@ servidor.patch("/actualizar/:id", async (peticion, respuesta, siguiente) => {
             }
         }
 
-        //if (modifiedCount){
-        //    return respuesta.sendStatus(204); //si se encuentra el color y se modificó
-        //} 
-        //if (matchedCount) {
-        //    return respuesta.status(200).json({ 
-        //    message: "No se modificaron los datos porque son iguales a los existentes" });
-        //}
 
-        siguiente(); //si no se encuentra el color, se llama a siguiente para que se ejecute el middleware de manejo de rutas no encontradas (404)
+        siguiente(); 
 
     } catch (e) {
         respuesta.status(500);
@@ -156,9 +128,3 @@ servidor.use((peticion,respuesta) => { //middleware de manejo de rutas no encont
 });
 
 servidor.listen(process.env.PORT);
-
-
-
-/*quiero hacer una peticion con el metodo patch a actualizar/:id, y en la peticion enviar un objeto con cualquier combinacion de propiedades del color r, g y b, por ejemplo {r: 255}, y quiero que se actualice solo la propiedad r del color con el id especificado, sin modificar las otras propiedades g y b. 
-
-Si logre actualizar en color será 204, si hubo error será 500, y si no hay color que actualizar, 404. Si intento actualizar con los mismos valores, debo enviar un 200 junto a un objeto explicando lo que ha ocurrido*/
