@@ -1,17 +1,77 @@
 import dotenv from "dotenv";
 dotenv.config();
-
 import express from 'express';
 const servidor = express();
 import {leerColores, crearColor, borrarColor, actualizarColor} from './db.js';
 import cors from "cors";
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+const saltRounds = 10;
 
+let nombre = NOMBRE;
+let password = PASSWORD;
 
 servidor.use(cors()); //convierte la API EN pública, cualquier persona podria hacer peticiones
 
 servidor.use(express.json()); //En tu código: Solo tienes un GET que envía datos al cliente. No tienes endpoints que reciban datos JSON en el body. Por eso no es necesaria en este caso. Sí la necesitarías si tuvieras POST/PUT/DELETE que reciban datos JSON. Crea peticion.body.
 
 //servidor.use(express.static("./front")); //para servir archivos estaticos, como el index.html, que se encuentra en la carpeta pruebas.
+
+//creamos contraseña en bcrypt encriptada
+try{
+    let salt = await bcrypt.genSalt(10);
+    let hash = await bcrypt.hash(password,salt);
+    console.log("hash:", hash);
+
+    let resultado = await bcrypt.compare(password, hash);
+    /*console.log("Resultado comparación:", resultado);*/ // Debería ser true
+}catch(err){
+    console.log("Error:", err);
+}
+
+//funcion para verificar si tengo token o no
+function verificar (peticion,respuesta,siguiente){
+    const token = "";
+    if(token){
+        try {
+            const infoUsuario = jwt.verify(token, process.env.INFO);
+            peticion.usuarioId = infoUsuario.id; // Guardamos el ID del usuario en la petición
+            siguiente();
+        } catch (err) {
+            respuesta.status(403).json({ error: "Token inválido o expirado." });
+        }
+    }else{
+        respuesta.status(403).json({ error: "Token inválido o expirado." });
+    }
+}
+
+
+
+
+servidor.post("/login", async (peticion,respuesta) => {  
+    const {password, nombre} = peticion.body;
+
+    try{
+
+        const usuario = await buscarUsuarioPorNombre(nombre);
+
+        if(usuario && resultado){
+
+            const token = jwt.sign(usuario,password);
+            return ;
+        }else{
+            respuesta.status(401);
+            respuesta.json({ error: "Error en login" })
+        }
+
+    }catch{
+        respuesta.status(401);
+        respuesta.json({ error: "Error en login" })
+    }
+
+});
+
+servidor.use(verificar); //todas las rutas que estén debajo de esta línea, van a pasar por verificar.
 
 servidor.get("/colores", async (peticion, respuesta) => { //get mejor usar .get en vez de use
     try {
