@@ -43,7 +43,7 @@ function verificar(peticion, respuesta, siguiente) {
 
     try {
         let token = peticion.headers.authorization.split(" ")[1];
-        jwt.verify(token, "ayuda", (error, datos) => {
+        jwt.verify(token, "alec", (error, datos) => {
             if (!error) {
                 return siguiente();
             }
@@ -87,7 +87,7 @@ servidor.post("/login", async (peticion, respuesta) => {
 
             if (coincide) {
                 // 3. Si coincide, generamos el token
-                const token = jwt.sign({ usuario: nombre }, "ayuda");
+                const token = jwt.sign({ usuario: nombre }, "alec");
                 return respuesta.json({ token });
             }
         }
