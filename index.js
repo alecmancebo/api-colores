@@ -90,7 +90,7 @@ servidor.post("/login", async (peticion, respuesta) => {
             }
         }
         
-        return respuesta.status(401).json({ error: "Credenciales incorrectas" });
+        return respuesta.status(403).json({ error: "Credenciales incorrectas" });
 
     } catch (error) {
         return respuesta.status(500).json({ error: "Error en el servidor" });
