@@ -8,12 +8,13 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 const saltRounds = 10;
 
-let nombre = process.env.NOMBRE;
-let password = process.env.PASSWORD;
+/*let nombre = process.env.NOMBRE;
+let password = process.env.PASSWORD;*/
 
 servidor.use(cors()); 
 
 servidor.use(express.json()); 
+
 /*function verificar (peticion,respuesta,siguiente){
 
       let token = peticion.headers.authorization.split(" ")[1]; //aqui se recibe el token, que se manda en las cabeceras de la petición, y se puede verificar si es correcto o no, para dar acceso o no a la ruta cerrada
@@ -33,12 +34,10 @@ servidor.use(express.json());
     }
 }*/
 
-// ... (resto del código igual)
-
 function verificar(peticion, respuesta, siguiente) {
-    // Comprobamos si existe la cabecera para evitar que el servidor pete
+    // Comprobar si existe la cabecera para evitar que el servidor pete
     if (!peticion.headers.authorization) {
-        return respuesta.status(401).json({ error: "No autorizado: falta token" });
+        return respuesta.status(403).json({ error: "No autorizado: falta token" });
     }
 
     try {
@@ -47,7 +46,7 @@ function verificar(peticion, respuesta, siguiente) {
             if (!error) {
                 return siguiente();
             }
-            respuesta.status(401).json({ error: "token no válido" });
+            respuesta.status(403).json({ error: "token no válido" });
         });
     } catch (e) {
         respuesta.status(400).json({ error: "Error procesando el token" });
@@ -80,19 +79,17 @@ servidor.post("/login", async (peticion, respuesta) => {
     const { password, nombre } = peticion.body;
 
     try {
-        // 1. Verificamos que el nombre coincida con el .env
+        // Verificamos que el nombre coincida con el .env
         if (nombre === process.env.NOMBRE) {
-            // 2. Comparamos el password escrito con el HASH del .env
+            //  Comparar el password escrito con el HASH del .env
             const coincide = await bcrypt.compare(password, process.env.PASSWORD);
 
             if (coincide) {
-                // 3. Si coincide, generamos el token
-                const token = jwt.sign({ usuario: nombre }, "alec");
+                const token = jwt.sign({ usuario: nombre }, "alec2");
                 return respuesta.json({ token });
             }
         }
         
-        // Si el nombre no coincide O la contraseña no es correcta
         return respuesta.status(401).json({ error: "Credenciales incorrectas" });
 
     } catch (error) {
