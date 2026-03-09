@@ -14,7 +14,7 @@ let password = process.env.PASSWORD;
 servidor.use(cors()); 
 
 servidor.use(express.json()); 
-function verificar (peticion,respuesta,siguiente){
+/*function verificar (peticion,respuesta,siguiente){
 
       let token = peticion.headers.authorization.split(" ")[1]; //aqui se recibe el token, que se manda en las cabeceras de la petición, y se puede verificar si es correcto o no, para dar acceso o no a la ruta cerrada
 
@@ -30,6 +30,27 @@ function verificar (peticion,respuesta,siguiente){
         }
     }else{
         respuesta.status(403).json({ error: "Token inválido o expirado." });
+    }
+}*/
+
+// ... (resto del código igual)
+
+function verificar(peticion, respuesta, siguiente) {
+    // Comprobamos si existe la cabecera para evitar que el servidor pete
+    if (!peticion.headers.authorization) {
+        return respuesta.status(401).json({ error: "No autorizado: falta token" });
+    }
+
+    try {
+        let token = peticion.headers.authorization.split(" ")[1];
+        jwt.verify(token, "ayuda", (error, datos) => {
+            if (!error) {
+                return siguiente();
+            }
+            respuesta.status(401).json({ error: "token no válido" });
+        });
+    } catch (e) {
+        respuesta.status(400).json({ error: "Error procesando el token" });
     }
 }
 
