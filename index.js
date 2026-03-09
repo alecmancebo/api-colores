@@ -42,11 +42,11 @@ function verificar(peticion, respuesta, siguiente) {
 
     try {
         let token = peticion.headers.authorization.split(" ")[1];
-        jwt.verify(token, "alec", (error, datos) => {
+        jwt.verify(token, "alec2", (error, datos) => {
             if (!error) {
                 return siguiente();
             }
-            respuesta.status(403).json({ error: "token no válido" });
+            respuesta.status(403).json({ error: "hola" });
         });
     } catch (e) {
         respuesta.status(400).json({ error: "Error procesando el token" });
@@ -79,9 +79,9 @@ servidor.post("/login", async (peticion, respuesta) => {
     const { password, nombre } = peticion.body;
 
     try {
-        // Verificamos que el nombre coincida con el .env
+        // Verificar que el nombre coincida con el .env
         if (nombre === process.env.NOMBRE) {
-            //  Comparar el password escrito con el HASH del .env
+            //  Comparar el password escrito con el HASH 
             const coincide = await bcrypt.compare(password, process.env.PASSWORD);
 
             if (coincide) {
@@ -90,7 +90,7 @@ servidor.post("/login", async (peticion, respuesta) => {
             }
         }
         
-        return respuesta.status(403).json({ error: "Credenciales incorrectas" });
+        return respuesta.status(401).json({ error: "Credenciales incorrectas" });
 
     } catch (error) {
         return respuesta.status(500).json({ error: "Error en el servidor" });

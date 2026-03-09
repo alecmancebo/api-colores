@@ -1,0 +1,16 @@
+
+
+
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+    "nombre": "Alec",
+    "password": "alec"
+}
+
+###
+GET http://localhost:3000/colores
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoiQWxlYyIsImlhdCI6MTc3MzA0NzY0NX0.6ItAys1HpJiFBDxkFkERt5nFRGabZSkMkI6WU7m5Ucc
+
