@@ -14,3 +14,30 @@ GET http://localhost:3000/colores
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoiQWxlYyIsImlhdCI6MTc3MzA0NzY0NX0.6ItAys1HpJiFBDxkFkERt5nFRGabZSkMkI6WU7m5Ucc
 
+###
+POST http://localhost:3000/nuevo
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoiQWxlYyIsImlhdCI6MTc3MzA0NzY0NX0.6ItAys1HpJiFBDxkFkERt5nFRGabZSkMkI6WU7m5Ucc
+
+{
+    "r": 255,
+    "g": 0,
+    "b": 0
+}
+
+###
+DELETE http://localhost:3000/borrar/69ae911d9f8c9324c1889797
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoiQWxlYyIsImlhdCI6MTc3MzA0NzY0NX0.6ItAys1HpJiFBDxkFkERt5nFRGabZSkMkI6WU7m5Ucc
+
+###
+PATCH http://localhost:3000/actualizar/69ae91929f8c9324c1889798
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoiQWxlYyIsImlhdCI6MTc3MzA0NzY0NX0.6ItAys1HpJiFBDxkFkERt5nFRGabZSkMkI6WU7m5Ucc
+
+{
+    "r": 50,
+    "g": 0,
+    "b": 0
+}
+

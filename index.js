@@ -46,7 +46,7 @@ function verificar(peticion, respuesta, siguiente) {
             if (!error) {
                 return siguiente();
             }
-            respuesta.status(403).json({ error: "hola" });
+            respuesta.status(403).json({ error: "token no valido" });
         });
     } catch (e) {
         respuesta.status(400).json({ error: "Error procesando el token" });
